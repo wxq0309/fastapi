@@ -57,7 +57,7 @@ uvicorn main:app --reload
 
 👤 **wxq0309**
 
-* Github: [@wwxxq0309](https://github.com/wxq0309)
+* Github: [@wxq0309](https://github.com/wxq0309)
 
 ## Show your support
 
