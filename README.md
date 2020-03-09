@@ -29,10 +29,10 @@
 
 ## Install
 
-* 项目拉取到本地后可进行依赖的安装
+* 项目拉取到本地后可进行依赖的安装,项目依赖可使用requirements.txt中的依赖进行安装
 
 ```sh
-pipenv install 
+pipenv install  / pip install -r requirements.txt
 ```
 
 ## Usage
@@ -40,6 +40,9 @@ pipenv install
 * 数据库迁移
 
 ```sh
+
+进行迁移之前需要先将 alembic.ini 文件和 dao.db中的MySQL用户名和密码更改成本人的
+
 alembic revision --autogenerate -m '本次操作信息'
 alembic upgrade head
 ```
