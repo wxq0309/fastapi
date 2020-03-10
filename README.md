@@ -1,4 +1,4 @@
-    <h1 align="center">Welcome to fastapi 👋</h1>
+<h1 align="center">Welcome to fastapi 👋</h1>
 <p>
 </p>
 
@@ -10,7 +10,7 @@
 
 ### 🏠 [Homepage](wxq0309.github.io)
 
-### ✨ [Demo](http://test.hjx.pub/docs)
+### ✨ [Demo](http://test.hjx.pub/docs) 网站已部署至 http://test.hjx.pub/docs
 
 ## 项目目录介绍
 ```
