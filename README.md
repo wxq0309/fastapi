@@ -1,4 +1,4 @@
-<h1 align="center">Welcome to fastapi 👋</h1>
+    <h1 align="center">Welcome to fastapi 👋</h1>
 <p>
 </p>
 
@@ -10,13 +10,16 @@
 
 ### 🏠 [Homepage](wxq0309.github.io)
 
-<!-- ### ✨ [Demo](123) -->
+### ✨ [Demo](http://test.hjx.pub/docs)
 
 ## 项目目录介绍
 ```
     -controller   控制层文件
         - actions crud操作文件
         - api     视图层文件
+            - ihou 线报信息以及es接口  
+            - ulink 长链转短链
+            - user  用户模块      
     -dao          数据库配置和数据表文件
     -migrations   数据库迁移文件
     -model        pydantic model文件
@@ -25,11 +28,14 @@
     -alembic.ini  alembic启动文件
     -main.py      项目入口文件
     -Pipfile      项目依赖文件
+    -requirements.txt 环境依赖
+
+    ps: 由于服务器未安装Elasticsearch Kibana所以 ihou中的接口会报错 
 ```
 
 ## Install
 
-* 项目拉取到本地后可进行依赖的安装,项目依赖可使用requirements.txt中的依赖进行安装
+* 项目拉取到本地后可进行依赖的安装,项目依赖可使用 requirements.txt 中的依赖进行安装
 
 ```sh
 pipenv install  / pip install -r requirements.txt
@@ -67,4 +73,5 @@ uvicorn main:app --reload
 Give a ⭐️ if this project helped you!
 
 ***
-_This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
+<!-- _This README was generated with ❤️ by  -->
+<!-- [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_ -->
