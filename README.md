@@ -10,7 +10,7 @@
 
 ### 🏠 [Homepage](wxq0309.github.io)
 
-### ✨ [Demo](http://test.hjx.pub/docs) 网站已部署至 http://test.hjx.pub/docs
+### ✨ [Demo](http://test.hjx.pub/docs) 网站已部署至 http://114.55.33.142:8002/docs   (学生机性能无视)
 
 ## 项目目录介绍
 ```
