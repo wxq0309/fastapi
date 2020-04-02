@@ -12,6 +12,6 @@ class Users(orm.Model):
     username = orm.String(max_length=50,  allow_null=True, allow_blank=True)
     email = orm.String(max_length=50, unique=True, index=True)
     password = orm.String(max_length=255)
-    phone = orm.String(max_length=11, min_length=11, allow_null=True, allow_blank=True)
+    phone = orm.String(max_length=11, min_length=11,
+                       allow_null=True, allow_blank=True)
     permission = orm.String(max_length=50, default="normal")
-

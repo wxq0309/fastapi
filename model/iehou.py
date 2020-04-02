@@ -7,6 +7,7 @@ class IeHouBase(BaseModel):
     publish_time: str
     content: str
 
+
 class CreateIeHou(IeHouBase):
     pass
 

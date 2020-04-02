@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.post("/info/")
-async def info (info: CreateIeHou):
+async def info(info: CreateIeHou):
     return await create_ihou(info.dict())
 
 
@@ -31,12 +31,13 @@ async def info():
 async def es(keys: str = Query(None, alias='q')):
     return match_info(keys)
 
+
 @router.get("/alls/")
 async def es():
     return match_alls()
 
 
 @router.get("/suggest/")
-async def es(keys: str=Query(None)):
+async def es(keys: str = Query(None)):
     print(keys)
     return suggest_search(keys)

@@ -1,7 +1,7 @@
 import databases
 import sqlalchemy
 
-DATABASE_URL = "mysql+pymysql://root:123456@localhost/ihou"
+DATABASE_URL = "mysql+pymysql://root:root@localhost/fastapi"
 
 database = databases.Database(DATABASE_URL)
 

@@ -16,7 +16,8 @@ ALGORITHM = "HS256"
 pwd_context = CryptContext(schemes=['bcrypt'])
 
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token", scheme_name="TOKEN")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token", scheme_name="TOKEN", scopes={"normal":"Read information about current user", "admin": "admin user"})
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token", scheme_name="TOKEN", scopes={
+                                     "normal": "Read information about current user", "admin": "admin user"})
 
 
 def verify_password(plain_password, hashed_password):
@@ -31,7 +32,7 @@ async def get_user(email: str):
     try:
         user = Users.objects.get(email=email)
     except orm.exceptions.NoMatch as e:
-        raise  HTTPException(status_code=400, detail="User Does't Match !!!")
+        raise HTTPException(status_code=400, detail="User Does't Match !!!")
     else:
         return user
 
@@ -53,7 +54,7 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    return {"code": 201, "msg": "新建账户成功", "data": {"token": encoded_jwt, "username": to_encode['username'], "email": to_encode['email']}}
 
 
 async def get_current_user(*, token: str = Depends(oauth2_scheme), security_scopes: SecurityScopes):

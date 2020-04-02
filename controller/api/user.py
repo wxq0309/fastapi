@@ -15,19 +15,20 @@ router = APIRouter()
 @router.post("/")
 async def user(user: CreateUser):
     hash_password = get_password_hash(user.password)
-    await Users.objects.create(email=user.email, phone=user.phone, password=hash_password, username=user.username )
+    await Users.objects.create(email=user.email, phone=user.phone, password=hash_password, username=user.username)
     return create_access_token(data={"username": user.username, "email": user.email})
 
 
 @router.post("/login")
-async def user(email: str=Body(..., min_length=6), password: str=Body(..., min_length=6)):
+async def user(email: str = Body(..., min_length=6), password: str = Body(..., min_length=6)):
     try:
         user = await Users.objects.get(email=email)
     except Exception as e:
         return HTTPException(status.HTTP_204_NO_CONTENT, detail="用户不存在")
     if not verify_password(password, user.password):
         return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="用户信息错误")
-    token = create_access_token(data={"username": user.username, "email": user.email, "scopes": [user.permission]})
+    token = create_access_token(
+        data={"username": user.username, "email": user.email, "scopes": [user.permission]})
     return {"username": user.username, "email": user.email, "id": user.id, "token": token}
 
 
@@ -43,7 +44,7 @@ async def user(current_user: Users = Security(get_current_user, scopes=['admin']
 
 
 @router.post("/password/")
-async def reset_password(user: Users = Depends(get_current_user), new_pwd: str = Body(..., min_length=6),old_pwd: str = Body(..., min_length=6)):
+async def reset_password(user: Users = Depends(get_current_user), new_pwd: str = Body(..., min_length=6), old_pwd: str = Body(..., min_length=6)):
     if verify_password(old_pwd, user.password):
         await user.update(password=get_password_hash(new_pwd))
         return {"code": 0, "msg": "密码修改成功"}
