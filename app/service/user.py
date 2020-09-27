@@ -1,4 +1,4 @@
-from app.models import Users
+from app.models.user import Users
 
 
 async def create_user(user: dict):

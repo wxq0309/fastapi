@@ -32,6 +32,11 @@ class Settings(BaseSettings):
     MYSQL_SERVER: str
     MYSQL_DB: str
 
+    EMAIL_HOSTNAEM: str
+    EMAIL_PORT: str
+    EMAIL_USER: str
+    EMAIL_PASSWORD: str
+
     SQLALCHEMY_DATABASE_URI: Optional[str]
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)

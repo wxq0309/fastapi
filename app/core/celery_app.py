@@ -3,6 +3,6 @@ from celery import Celery
 from . import celeryconfig
 from .config import settings
 
-app = Celery(settings.CELERY_NAME)
+celery_app = Celery(settings.CELERY_NAME)
 
-app.config_from_object(celeryconfig)
+celery_app.config_from_object(celeryconfig)
