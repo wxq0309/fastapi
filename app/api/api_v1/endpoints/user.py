@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Union
+from typing import Any, Union, Optional
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -43,5 +43,5 @@ async def login(user: UserLogin, session: AsyncSession = Depends(get_db)) -> Any
 
 
 @router.get("/set_user_info", description="设置个人信息", summary="设置个人信息", response_model=UserInfo)
-async def set_user_info(user: Union[str, Any] = Depends(get_current_user)):
-    return user.__dict__
+async def get_user_info(user: Optional[User] = Depends(get_current_user)):
+    return user.to_dict()

@@ -41,13 +41,6 @@ async def get_user(user: callable, session: AsyncSession) -> Any:
     return _user
 
 
-async def get_user_info_by_id_or_phone(*,
-                                       session: AsyncSession = Depends(get_db),
-                                       _id: Optional[int] = None,
-                                       phone: Optional[str] = None):
-    return _user
-
-
 async def authenticate_user(email: str, password: str):
     user = await get_user(email)
     if not user:

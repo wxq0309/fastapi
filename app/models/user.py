@@ -13,6 +13,17 @@ class User(Base, BaseMixIn):
     user_type = Column(Integer, default=0)
     message_code = relationship("MessageCode")
 
+    def to_dict(self):
+        data = {
+            "id": self.id,
+            "username": self.username,
+            "user_type": self.user_type,
+            "create_time": self.create_time,
+            "update_time": self.update_time,
+            "phone": self.phone
+        }
+        return data
+
 
 class MessageCode(Base, BaseMixIn):
     __tablename__ = "message_code"
