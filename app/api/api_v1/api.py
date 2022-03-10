@@ -10,9 +10,7 @@
 """
 from fastapi import APIRouter
 
-from app.api.api_v1.endpoints import spiders, user, ulink
+from app.api.api_v1.endpoints import user
 
 api_router = APIRouter()
 api_router.include_router(user.router, prefix="/users", tags=["users"])
-api_router.include_router(spiders.router, prefix="/spiders", tags=["spiders"])
-api_router.include_router(ulink.router, prefix="/third_link", tags=["third_link"])

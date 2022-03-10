@@ -1,59 +1,47 @@
-import random
+from functools import partial
+from typing import Any, Union
 
-from fastapi import APIRouter, status, Body, Depends, Security, Query
-from fastapi.exceptions import HTTPException
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api import deps
-from app.api.deps import get_current_user
-from app.core.celery_app import celery_app
+from app.api.deps import get_db, get_user, get_current_user
 from app.core.security import get_password_hash, create_access_token, verify_password
-from app.models.user import Users
-from app.schemas.user import CreateUser
+from app.models.user import User
+from app.schemas.base import OutPutSchemaModel
+from app.schemas.user import UserCreate, UserLogin, UserInfo
 
 router = APIRouter()
 
 
-@router.post("/register")
-async def user(user: CreateUser):
-    hash_password = get_password_hash(user.password)
-    await Users.objects.create(email=user.email, phone=user.phone, password=hash_password, username=user.username)
-    task = celery_app.send_task("app.api.api_v1.tasks.emails.decoratorEmail",
-                                args=[user.email, "".join([str(random.randint(1, 9)) for i in range(6)])])
-    print(task, "---------")
-    return create_access_token(data={"username": user.username, "email": user.email})
+@router.post("/register", status_code=201, response_model=OutPutSchemaModel, description="用户注册", summary="用户注册")
+async def register(user_obj: UserCreate, session: AsyncSession = Depends(get_db)) -> Any:
+    _user = await get_user(user_obj, session)
+    if _user:
+        return OutPutSchemaModel(code=0, msg="用户已存在，请直接登录", data=[])
+    else:
+        hash_password = get_password_hash(user_obj.password)
+        _user = User(password=hash_password, phone=user_obj.phone)
+        session.add(_user)
+        await session.flush()
+        data = user_obj.dict().pop("password")
+        return OutPutSchemaModel(code=1, msg="注册成功", data=data)
 
 
-@router.post("/login")
-async def user(email: str = Body(..., min_length=6), password: str = Body(..., min_length=6)):
-    try:
-        user = await Users.objects.get(email=email)
-    except Exception as e:
-        return HTTPException(status.HTTP_204_NO_CONTENT, detail="用户不存在")
-    if not verify_password(password, user.password):
-        return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="密码错误请重试")
-    token = create_access_token(data={"username": user.username, "email": user.email, "scopes": [user.permission]})
-    return {"username": user.username, "email": user.email, "id": user.id, "token": token}
+@router.post("/login", description="用户登录", summary="用户登录", response_model=OutPutSchemaModel)
+async def login(user: UserLogin, session: AsyncSession = Depends(get_db)) -> Any:
+    _user = await get_user(user, session)
+    if not _user:
+        return OutPutSchemaModel(msg="用户不存在")
+    else:
+        if not verify_password(user.password, _user.password):
+            return OutPutSchemaModel(msg="登录失败，请确认账户或者密码是否存在")
+        else:
+            return OutPutSchemaModel(code=200, msg="登录成功", data={
+                "phone": _user.phone, "id": _user.id,
+                "token": create_access_token(data={"phone": user.phone, "id": _user.id})
+            })
 
 
-@router.get("/me")
-async def user(current_user: Users = Depends(deps.get_current_user)):
-    return current_user
-
-
-@router.get("/alls")
-async def user(current_user: Users = Security(get_current_user, scopes=['admin'])):
-    return await Users.objects.all()
-
-
-@router.post("/password/")
-async def reset_password(user: Users = Depends(get_current_user), new_pwd: str = Body(..., min_length=6),
-                         old_pwd: str = Body(..., min_length=6)):
-    if verify_password(old_pwd, user.password):
-        await user.update(password=get_password_hash(new_pwd))
-        return {"code": 0, "msg": "密码修改成功"}
-    return {"code": 1, "msg": "原密码错误"}
-
-
-@router.get("/activated")
-async def activated_account(code: str = Query(max_length=6, min_length=6, default="123456")):
-    return {"msg": "账户激活成功", "code": code}
+@router.get("/set_user_info", description="设置个人信息", summary="设置个人信息", response_model=UserInfo)
+async def set_user_info(user: Union[str, Any] = Depends(get_current_user)):
+    return user.__dict__

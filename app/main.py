@@ -1,8 +1,10 @@
+import aioredis
+import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.models.db import create_connection, disconnect
+from app.core.logger import logger
 from app.api.api_v1.api import api_router
 
 
@@ -18,12 +20,25 @@ def generate_application() -> FastAPI:
         allow_headers=["*"],
     )
 
-    application.add_event_handler("startup", create_connection)
-    application.add_event_handler("shutdown", disconnect)
+    @application.on_event("startup")
+    async def create_redis_app():
+        application.state.redis = await aioredis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
+
+    @application.on_event("shutdown")
+    async def stop_redis_app():
+        application.state.redis.close()
+        await application.state.redis.wait_close()
 
     application.include_router(api_router, prefix=settings.API_V1_STR)
 
     return application
 
 
-app = generate_application()
+if __name__ == '__main__':
+    app = generate_application()
+    logger.getlogger().info("app已加载")
+    uvicorn.run(
+        app,
+        host='0.0.0.0',
+        port=9000
+    )

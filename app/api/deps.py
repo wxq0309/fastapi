@@ -8,27 +8,44 @@
 ------------      -------    --------    -----------
 2020/9/26 3:15 下午   wuxiaoqiang      1.0         None
 """
-import jose
+from typing import Generator, Union, Any, Optional
+
 import jwt
-import orm
 from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt, JWTError
+from jwt import ExpiredSignatureError
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from starlette import status
 
-from app.core.security import verify_password, SECRET_KEY, ALGORITHM
-from app.models.user import Users
+from app.core.security import verify_password, SECRET_KEY, ALGORITHM, oauth2_scheme, get_jwt_token
+from app.models.db import SessionLocal
+from app.models.user import User
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/users/login")
+
+async def get_db() -> AsyncSession:
+    async with SessionLocal() as session:
+        yield session
+        await session.commit()
 
 
-async def get_user(email: str):
+async def get_user(user: callable, session: AsyncSession) -> Any:
+    stmt = select(User).where(User.phone == user.phone)
+    results = await session.execute(stmt)
     try:
-        user = Users.objects.get(email=email)
-    except orm.exceptions.NoMatch as e:
-        raise HTTPException(status_code=400, detail="User Does't Match !!!")
-    else:
-        return user
+        _user = results.scalar()
+    except AttributeError:
+        return None
+    if not _user:
+        return None
+    return _user
+
+
+async def get_user_info_by_id_or_phone(*,
+                                       session: AsyncSession = Depends(get_db),
+                                       _id: Optional[int] = None,
+                                       phone: Optional[str] = None):
+    return _user
 
 
 async def authenticate_user(email: str, password: str):
@@ -40,24 +57,29 @@ async def authenticate_user(email: str, password: str):
     return user
 
 
-async def get_current_user(*, token: str = Depends(oauth2_scheme)):
+async def get_current_user(*, session: AsyncSession = Depends(get_db), payload: dict = Depends(get_jwt_token)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
     )
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("email")
-        username: str = payload.get("username")
-        if email is None or email is None:
+        _id: int = payload.get("id", None)
+        phone: str = payload.get("phone", None)
+        if _id is None or phone is None:
             raise credentials_exception
-    except jose.exceptions.ExpiredSignatureError:
+    except ExpiredSignatureError:
         raise credentials_exception
-    except JWTError as e:
+    except Exception:
         raise credentials_exception
-    user = await Users.objects.limit(1).filter(email=email, username=username).all()
+
+    if _id:
+        stmt = select(User).where(User.id == _id)
+    else:
+        stmt = select(User).where(User.phone == phone)
+    results = await session.execute(stmt)
+    user = results.scalar()
     if not user:
         raise credentials_exception
 
-    return user[0]
+    return user

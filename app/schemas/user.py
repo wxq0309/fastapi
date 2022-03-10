@@ -1,18 +1,29 @@
+from typing import Union, Optional
+
 from pydantic import BaseModel
+
+from app.schemas.base import BaseSchemaModel
 
 
 class UserBase(BaseModel):
-    username: str
-    email: str
     phone: str
 
 
-class CreateUser(UserBase):
+class UserCreate(UserBase):
     password: str
 
 
-class User(UserBase):
-    id: int
+class UserLogin(UserCreate):
+    pass
 
-    class Config:
-        orm_mode = True
+
+class UserInfo(UserBase):
+    id: int
+    username: Optional[str] = None
+    create_time: Optional[str] = None
+    update_time: Optional[str] = None
+
+
+class MessageCodeBase(BaseSchemaModel):
+    code: Union[str, None]
+    user: Union[UserBase, None]

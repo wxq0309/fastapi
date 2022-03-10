@@ -35,8 +35,9 @@ async def sendemail(to_addr: str, code: str):
             await smtp.send_message(msg)
     except aiosmtplib.SMTPException as e:
         print(e)
+        raise e
 
 
-@celery_app.task(acks_late=True)
+@celery_app.task(acks_late=True, autoretry_for=(Exception,), retry_kwargs={'max_retries': 3})
 def decoratorEmail(To: str, code: str = "123456"):
     asyncio.run(sendemail(To, code))

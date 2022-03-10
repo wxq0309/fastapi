@@ -1,17 +1,21 @@
-import orm
+from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 
-from app.models.db import database, metadata
+from app.models.base_class import Base, BaseMixIn
 
 
-class Users(orm.Model):
-    __tablename__ = "users"
-    __database__ = database
-    __metadata__ = metadata
+class User(Base, BaseMixIn):
+    __tablename__ = "user"
 
-    id = orm.Integer(primary_key=True)
-    username = orm.String(max_length=50,  allow_null=True, allow_blank=True)
-    email = orm.String(max_length=50, unique=True, index=True)
-    password = orm.String(max_length=255)
-    phone = orm.String(max_length=11, min_length=11,
-                       allow_null=True, allow_blank=True)
-    permission = orm.String(max_length=50, default="normal")
+    username = Column(String(50), nullable=True)
+    phone = Column(String(length=11), nullable=False, unique=True)
+    password = Column(String(255), nullable=False)
+    user_type = Column(Integer, default=0)
+    message_code = relationship("MessageCode")
+
+
+class MessageCode(Base, BaseMixIn):
+    __tablename__ = "message_code"
+
+    code = Column(String(length=6))
+    user = Column(ForeignKey("user.id"))

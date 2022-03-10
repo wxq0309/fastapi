@@ -11,7 +11,6 @@
 from typing import Optional, Dict, Any
 
 from pydantic import validator, BaseSettings
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -32,20 +31,26 @@ class Settings(BaseSettings):
     MYSQL_SERVER: str
     MYSQL_DB: str
 
-    EMAIL_HOSTNAEM: str
+    EMAIL_HOST_NAME: str
     EMAIL_PORT: str
     EMAIL_USER: str
     EMAIL_PASSWORD: str
 
+    LOG_NAME: str
+
     SQLALCHEMY_DATABASE_URI: Optional[str]
+    ASYNC_SQLALCHEMY_DATABASE_URI: Optional[str]
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
-        if isinstance(v, str):
-            return v
         return f"mysql://{values['MYSQL_USER']}:{values['MYSQL_PASSWORD']}@{values['MYSQL_SERVER']}/{values['MYSQL_DB']}"
 
+    @validator("ASYNC_SQLALCHEMY_DATABASE_URI", pre=True)
+    def async_database_url(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+        return f"mysql+aiomysql://{values['MYSQL_USER']}:{values['MYSQL_PASSWORD']}@{values['MYSQL_SERVER']}/{values['MYSQL_DB']}"
+
     class Config:
+        env_file = ".env"
         case_sensitive = True
 
 

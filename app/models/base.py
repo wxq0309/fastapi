@@ -6,9 +6,7 @@
 
 @Modify Time      @Author    @Version    @Desciption
 ------------      -------    --------    -----------
-2020/9/26 4:24 下午   wuxiaoqiang      1.0         None
+2022/3/10 2:16 下午   wuxiaoqiang      1.0         None
 """
-from app.models.db import metadata
-from app.models.user import Users
-from app.models.ulink import UriLink
-from app.models.iehou import IHou
+from app.models.base_class import Base
+from app.models.user import User, MessageCode
