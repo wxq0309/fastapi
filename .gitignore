@@ -14,7 +14,8 @@ Icon
 .vscode
 .idea
 *.pyc
-
+*/__pycache__/
+__pycache__/
 test.py
 **/__pycache__
 *.log
